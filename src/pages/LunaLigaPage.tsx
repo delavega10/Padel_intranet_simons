@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Plus, Trash2, Trophy } from 'lucide-react'
+import { Plus, Trophy } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -8,16 +8,8 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { EmptyState } from '@/components/ui/EmptyState'
-
-export interface LunaCaptain {
-  id: string
-  name: string
-  team: string | null
-  phone: string | null
-  email: string | null
-  sort_order: number
-  created_at: string
-}
+import { LunaCaptainCard } from '@/components/luna/LunaCaptainCard'
+import type { LunaCaptain } from '@/types'
 
 export function LunaLigaPage() {
   const { isAdmin } = useAuth()
@@ -28,8 +20,10 @@ export function LunaLigaPage() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [saving, setSaving] = useState(false)
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set())
 
   const load = useCallback(async () => {
+    setLoading(true)
     const { data } = await supabase
       .from('luna_captains')
       .select('*')
@@ -65,7 +59,29 @@ export function LunaLigaPage() {
   async function deleteCaptain(id: string) {
     if (!isAdmin || !confirm('Slet kaptajn?')) return
     await supabase.from('luna_captains').delete().eq('id', id)
+    setOpenIds((prev) => {
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
     await load()
+  }
+
+  function toggleCaptain(id: string) {
+    setOpenIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function expandAll() {
+    setOpenIds(new Set(captains.map((c) => c.id)))
+  }
+
+  function collapseAll() {
+    setOpenIds(new Set())
   }
 
   if (loading) return <LoadingSpinner />
@@ -74,7 +90,7 @@ export function LunaLigaPage() {
     <div className="space-y-6">
       <PageHeader
         title="LunaLiga oversigt"
-        description="Liste over Luna-kaptajner"
+        description="Kaptajner, banedatoer, faktura og Matchi-bekræftelse"
         icon={Trophy}
       />
 
@@ -111,36 +127,43 @@ export function LunaLigaPage() {
           }
         />
       ) : (
-        <ul className="space-y-3">
-          {captains.map((c) => (
-            <li key={c.id}>
-              <Card className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-semibold text-gray-900">{c.name}</p>
-                  {c.team && <p className="text-sm text-padel-700 mt-0.5">{c.team}</p>}
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
-                    {c.phone && <span>{c.phone}</span>}
-                    {c.email && (
-                      <a href={`mailto:${c.email}`} className="text-padel-600 hover:underline">
-                        {c.email}
-                      </a>
-                    )}
-                  </div>
-                </div>
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => deleteCaptain(c.id)}
-                    className="rounded p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                    aria-label="Slet"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
-              </Card>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-gray-500">
+              {captains.length} hold — klik på et hold for at åbne
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={expandAll}
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-padel-700 hover:bg-padel-50"
+              >
+                Åbn alle
+              </button>
+              <button
+                type="button"
+                onClick={collapseAll}
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+              >
+                Luk alle
+              </button>
+            </div>
+          </div>
+          <ul className="space-y-2">
+            {captains.map((c) => (
+              <li key={c.id}>
+                <LunaCaptainCard
+                  captain={c}
+                  isAdmin={isAdmin}
+                  open={openIds.has(c.id)}
+                  onToggle={() => toggleCaptain(c.id)}
+                  onUpdated={load}
+                  onDelete={deleteCaptain}
+                />
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   )

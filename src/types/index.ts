@@ -122,6 +122,20 @@ export interface DailyTaskCompletion {
 
 export type CaseStatus = 'open' | 'resolved'
 
+export interface LunaCaptain {
+  id: string
+  name: string
+  team: string | null
+  phone: string | null
+  email: string | null
+  sort_order: number
+  booking_dates_comment: string
+  invoice_sent: boolean
+  matchi_booking_confirmed: boolean
+  tracking_updated_at: string
+  created_at: string
+}
+
 export interface EmployeeCase {
   id: string
   title: string
@@ -132,4 +146,59 @@ export interface EmployeeCase {
   resolved_by: string | null
   resolved_at: string | null
   created_at: string
+}
+
+export type AdminTodoPriority = 'lav' | 'mellem' | 'hoj'
+
+export interface AdminTodo {
+  id: string
+  title: string
+  description: string
+  priority: AdminTodoPriority
+  completed: boolean
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export const ADMIN_TODO_PRIORITY_LABELS: Record<AdminTodoPriority, string> = {
+  hoj: 'Høj',
+  mellem: 'Mellem',
+  lav: 'Lav',
+}
+
+export const ADMIN_TODO_PRIORITY_ORDER: Record<AdminTodoPriority, number> = {
+  hoj: 0,
+  mellem: 1,
+  lav: 2,
+}
+
+export type ShopTileColor = 'green' | 'dark'
+
+export interface ShopProduct {
+  id: string
+  name: string
+  tile_color: ShopTileColor
+  sort_order: number
+  active: boolean
+  created_at: string
+}
+
+export type ShopOrderStatus = 'ny' | 'klar' | 'afhentet' | 'annulleret'
+
+export interface ShopOrder {
+  id: string
+  ordered_by: string
+  ordered_by_name: string
+  status: ShopOrderStatus
+  note: string | null
+  created_at: string
+}
+
+export interface ShopOrderLine {
+  id: string
+  order_id: string
+  product_id: string
+  product_name: string
+  quantity: number
 }

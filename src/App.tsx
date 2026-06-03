@@ -14,6 +14,8 @@ import { TrainingPage } from '@/pages/TrainingPage'
 import { AdminPage } from '@/pages/AdminPage'
 import { DailyTasksPage } from '@/pages/DailyTasksPage'
 import { LunaLigaPage } from '@/pages/LunaLigaPage'
+import { AdminTodoPage } from '@/pages/AdminTodoPage'
+import { OrdersPage } from '@/pages/OrdersPage'
 
 export default function App() {
   if (!isSupabaseConfigured) {
@@ -32,6 +34,7 @@ export default function App() {
               <Route path="nyheder/*" element={<Navigate to="/" replace />} />
               <Route path="goremal" element={<DailyTasksPage />} />
               <Route path="lunaliga" element={<LunaLigaPage />} />
+              <Route path="bestillinger" element={<OrdersPage />} />
               <Route path="kalender" element={<CalendarPage />} />
               <Route path="dokumenter" element={<DocumentsPage />} />
 
@@ -41,6 +44,7 @@ export default function App() {
 
               <Route element={<AdminRoute />}>
                 <Route path="admin" element={<AdminPage />} />
+                <Route path="admin-todo" element={<AdminTodoPage />} />
               </Route>
             </Route>
           </Route>
