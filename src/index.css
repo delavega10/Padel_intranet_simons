@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-padel-50: #f0fdf4;
+  --color-padel-100: #dcfce7;
+  --color-padel-200: #bbf7d0;
+  --color-padel-300: #86efac;
+  --color-padel-400: #4ade80;
+  --color-padel-500: #22c55e;
+  --color-padel-600: #16a34a;
+  --color-padel-700: #15803d;
+  --color-padel-800: #166534;
+  --color-padel-900: #14532d;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-gray-100 text-gray-900 min-h-screen;
+  }
+
+  body h1 {
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
+  .page-header-container {
+    @apply mb-6;
+  }
+
+  .page-header {
+    @apply text-xl md:text-3xl font-bold text-gray-900 flex items-center gap-2 md:gap-3 uppercase;
+  }
+
+  .page-header-with-action {
+    @apply flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3;
+  }
+
+  .page-icon {
+    @apply w-6 h-6 md:w-8 md:h-8 text-padel-600 shrink-0;
+  }
+
+  .content-card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4;
+  }
+
+  .sidebar-item-active {
+    @apply text-padel-700 bg-padel-50;
+  }
+
+  .sidebar-item-inactive {
+    @apply text-gray-700 hover:text-padel-700 hover:bg-padel-50;
+  }
+
+  .section-toggle {
+    @apply flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50;
+  }
+}
