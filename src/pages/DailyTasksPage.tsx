@@ -41,23 +41,27 @@ export function DailyTasksPage() {
   const authorName = profile?.full_name || profile?.email?.split('@')[0] || 'Bruger'
 
   const load = useCallback(async () => {
-    const [tasksRes, compRes, casesRes] = await Promise.all([
-      supabase.from('daily_tasks').select('*').order('sort_order'),
-      supabase
-        .from('daily_task_completions')
-        .select('*')
-        .eq('completion_date', viewDate),
-      supabase
-        .from('employee_cases')
-        .select('*')
-        .order('created_at', { ascending: false }),
-    ])
+    const tasksRes = await supabase.from('daily_tasks').select('*').order('sort_order')
+    const compRes = await supabase
+      .from('daily_task_completions')
+      .select('*')
+      .eq('completion_date', viewDate)
 
     if (tasksRes.data) setTasks(tasksRes.data as DailyTask[])
     if (compRes.data) setCompletions(compRes.data as DailyTaskCompletion[])
-    if (casesRes.data) setCases(casesRes.data as EmployeeCase[])
+
+    if (isAdmin) {
+      const casesRes = await supabase
+        .from('employee_cases')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (casesRes.data) setCases(casesRes.data as EmployeeCase[])
+    } else {
+      setCases([])
+    }
+
     setLoading(false)
-  }, [viewDate])
+  }, [viewDate, isAdmin])
 
   useEffect(() => {
     setLoading(true)
@@ -354,7 +358,7 @@ export function DailyTasksPage() {
           Opret sag (noget der skal fixes)
         </h3>
         <p className="text-sm text-gray-500 mb-4">
-          Har du set noget der skal repareres eller fixes? Admin får besked ved næste login.
+          Beskriv problemet — en administrator ser det på dashboard og under daglige opgaver.
         </p>
         <form onSubmit={submitCase} className="space-y-4">
           <Input

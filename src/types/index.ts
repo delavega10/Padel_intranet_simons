@@ -202,3 +202,14 @@ export interface ShopOrderLine {
   product_name: string
   quantity: number
 }
+
+export interface Sponsor {
+  id: string
+  name: string
+  logo_url: string
+  website_url: string | null
+  expires_at: string
+  sort_order: number
+  created_at: string
+  updated_at: string
+}

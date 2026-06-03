@@ -16,6 +16,7 @@ import { DailyTasksPage } from '@/pages/DailyTasksPage'
 import { LunaLigaPage } from '@/pages/LunaLigaPage'
 import { AdminTodoPage } from '@/pages/AdminTodoPage'
 import { OrdersPage } from '@/pages/OrdersPage'
+import { SponsorsPage } from '@/pages/SponsorsPage'
 
 export default function App() {
   if (!isSupabaseConfigured) {
@@ -37,6 +38,7 @@ export default function App() {
               <Route path="bestillinger" element={<OrdersPage />} />
               <Route path="kalender" element={<CalendarPage />} />
               <Route path="dokumenter" element={<DocumentsPage />} />
+              <Route path="sponsorer" element={<SponsorsPage />} />
 
               <Route element={<TrainerRoute />}>
                 <Route path="traener" element={<TrainingPage />} />

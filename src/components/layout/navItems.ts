@@ -13,6 +13,7 @@ import {
   DoorOpen,
   Coffee,
   Flag,
+  Handshake,
   type LucideIcon,
 } from 'lucide-react'
 import { siteLinks, isExternalLinkConfigured } from '@/config/siteLinks'
@@ -71,6 +72,7 @@ export const navItems: NavItem[] = [
   { to: '/bestillinger', label: 'Huskeseddel', icon: ClipboardListIcon, section: 'main' },
   { to: '/kalender', label: 'Kalender', icon: Calendar, section: 'main' },
   { to: '/dokumenter', label: 'Dokumenter', icon: FileText, section: 'main' },
+  { to: '/sponsorer', label: 'Sponsorer', icon: Handshake, section: 'main' },
   { to: '/traener', label: 'Trænerområde', icon: Dumbbell, section: 'main', trainerOnly: true },
   ...externalNavItems,
   {
