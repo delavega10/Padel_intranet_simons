@@ -13,6 +13,7 @@ import { DocumentsPage } from '@/pages/DocumentsPage'
 import { TrainingPage } from '@/pages/TrainingPage'
 import { AdminPage } from '@/pages/AdminPage'
 import { DailyTasksPage } from '@/pages/DailyTasksPage'
+import { LunaLigaPage } from '@/pages/LunaLigaPage'
 
 export default function App() {
   if (!isSupabaseConfigured) {
@@ -30,6 +31,7 @@ export default function App() {
               <Route index element={<DashboardPage />} />
               <Route path="nyheder/*" element={<Navigate to="/" replace />} />
               <Route path="goremal" element={<DailyTasksPage />} />
+              <Route path="lunaliga" element={<LunaLigaPage />} />
               <Route path="kalender" element={<CalendarPage />} />
               <Route path="dokumenter" element={<DocumentsPage />} />
 

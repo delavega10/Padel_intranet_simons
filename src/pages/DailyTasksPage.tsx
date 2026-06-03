@@ -283,19 +283,19 @@ export function DailyTasksPage() {
                       key={task.id}
                       className={`flex items-start gap-3 rounded-lg border p-3 transition-colors ${
                         done
-                          ? 'border-padel-200 bg-padel-50/50'
-                          : 'border-gray-100 bg-gray-50/50'
+                          ? 'border-green-200 bg-green-50/60'
+                          : 'border-red-200 bg-red-50/60'
                       }`}
                     >
                       <button
                         type="button"
                         onClick={() => toggleTask(task.id)}
                         disabled={done && !isAdmin}
-                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 shadow-sm transition-colors ${
                           done
-                            ? 'border-padel-600 bg-padel-600 text-white'
-                            : 'border-gray-300 bg-white hover:border-padel-500'
-                        } ${done && !isAdmin ? 'cursor-default opacity-90' : ''}`}
+                            ? 'border-green-600 bg-green-500 text-white ring-2 ring-green-300'
+                            : 'border-red-500 bg-red-100 ring-2 ring-red-300 hover:bg-red-200 hover:ring-red-400'
+                        } ${done && !isAdmin ? 'cursor-default' : ''}`}
                         aria-label={
                           done
                             ? isAdmin
