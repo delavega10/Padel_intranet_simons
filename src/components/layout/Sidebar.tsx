@@ -72,10 +72,10 @@ function NavItemLink({
 }
 
 export function Sidebar({ showMobileDrawer, setShowMobileDrawer }: SidebarProps) {
-  const { profile, signOut, isAdmin, isTrainer } = useAuth()
+  const { profile, signOut, isAdmin, isEmil } = useAuth()
 
   const visibleItems = navItems.filter((item) =>
-    filterNavItem(item, { isAdmin, isTrainer }),
+    filterNavItem(item, { isAdmin, isEmil }),
   )
 
   const closeDrawer = () => setShowMobileDrawer(false)

@@ -3,27 +3,27 @@ import { Shield } from 'lucide-react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { AdminNewsTab } from './admin/AdminNewsTab'
 import { AdminEventsTab } from './admin/AdminEventsTab'
-import { AdminDocumentsTab } from './admin/AdminDocumentsTab'
 import { AdminUsersTab } from './admin/AdminUsersTab'
 
-type AdminTab = 'news' | 'events' | 'documents' | 'users'
+type AdminTab = 'news' | 'events' | 'users'
 
 const tabs: { id: AdminTab; label: string }[] = [
   { id: 'news', label: 'Feed-indlæg' },
   { id: 'events', label: 'Events' },
-  { id: 'documents', label: 'Dokumenter' },
   { id: 'users', label: 'Brugere' },
 ]
 
 export function AdminPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const activeTab = (searchParams.get('tab') as AdminTab) || 'news'
+  const tabParam = searchParams.get('tab')
+  const activeTab: AdminTab =
+    tabParam === 'events' || tabParam === 'users' ? tabParam : 'news'
 
   return (
     <div>
       <PageHeader
         title="Admin-panel"
-        description="Administrer indhold, dokumenter og brugere"
+        description="Administrer indhold og brugere"
         icon={Shield}
       />
 
@@ -46,7 +46,6 @@ export function AdminPage() {
 
       {activeTab === 'news' && <AdminNewsTab />}
       {activeTab === 'events' && <AdminEventsTab />}
-      {activeTab === 'documents' && <AdminDocumentsTab />}
       {activeTab === 'users' && <AdminUsersTab />}
     </div>
   )

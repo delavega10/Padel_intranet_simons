@@ -5,8 +5,6 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-  FileText,
-  Dumbbell,
   Newspaper,
   ArrowRight,
   LayoutDashboard,
@@ -21,13 +19,11 @@ import type { EmployeeCase, Event } from '@/types'
 
 const quickLinks = [
   { to: '/goremal', label: 'Daglige opgaver', icon: ClipboardList },
-  { to: '/dokumenter', label: 'Dokumenter', icon: FileText },
   { to: '/kalender', label: 'Kalender', icon: Calendar },
-  { to: '/traener', label: 'Trænerområde', icon: Dumbbell },
 ]
 
 export function DashboardPage() {
-  const { profile, isAdmin, isTrainer } = useAuth()
+  const { profile, isAdmin } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [openCases, setOpenCases] = useState<EmployeeCase[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,11 +55,6 @@ export function DashboardPage() {
     }
     load()
   }, [isAdmin])
-
-  const visibleQuickLinks = quickLinks.filter((link) => {
-    if (link.to === '/traener' && !isAdmin && !isTrainer) return false
-    return true
-  })
 
   const firstName = profile?.full_name?.split(' ')[0] ?? 'kollega'
 
@@ -171,7 +162,7 @@ export function DashboardPage() {
             </button>
             {sectionsOpen.links && (
               <div className="px-4 pb-4 space-y-2">
-                {visibleQuickLinks.map(({ to, label, icon: Icon }) => (
+                {quickLinks.map(({ to, label, icon: Icon }) => (
                   <Link
                     key={to}
                     to={to}

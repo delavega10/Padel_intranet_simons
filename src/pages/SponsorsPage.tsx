@@ -7,6 +7,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Modal } from '@/components/ui/Modal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatDate } from '@/lib/format'
 import type { Sponsor } from '@/types'
@@ -39,6 +40,7 @@ export function SponsorsPage() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const [name, setName] = useState('')
@@ -61,11 +63,21 @@ export function SponsorsPage() {
   }, [load])
 
   function resetForm() {
+    setFormOpen(false)
     setEditingId(null)
     setName('')
     setLogoUrl('')
     setWebsiteUrl('')
     setExpiresAt('')
+  }
+
+  function openCreate() {
+    setEditingId(null)
+    setName('')
+    setLogoUrl('')
+    setWebsiteUrl('')
+    setExpiresAt('')
+    setFormOpen(true)
   }
 
   function startEdit(s: Sponsor) {
@@ -74,6 +86,7 @@ export function SponsorsPage() {
     setLogoUrl(s.logo_url)
     setWebsiteUrl(s.website_url ?? '')
     setExpiresAt(s.expires_at)
+    setFormOpen(true)
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -117,14 +130,23 @@ export function SponsorsPage() {
         title="Sponsorer"
         description="Overblik over sponsorer, logo og hvornår sponsoratet udløber"
         icon={Handshake}
+        action={
+          isAdmin ? (
+            <Button type="button" onClick={openCreate}>
+              <Plus className="h-4 w-4" />
+              Tilføj sponsor
+            </Button>
+          ) : undefined
+        }
       />
 
       {isAdmin && (
-        <Card>
-          <h3 className="font-semibold text-gray-900 mb-4 normal-case">
-            {editingId ? 'Rediger sponsor' : 'Tilføj sponsor'}
-          </h3>
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+        <Modal
+          open={formOpen}
+          onClose={resetForm}
+          title={editingId ? 'Rediger sponsor' : 'Tilføj sponsor'}
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Navn"
               value={name}
@@ -133,56 +155,49 @@ export function SponsorsPage() {
               required
             />
             <Input
+              label="Logo-URL"
+              type="url"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://..."
+              required
+            />
+            <Input
+              label="Hjemmeside (valgfrit)"
+              type="url"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              placeholder="https://..."
+            />
+            <Input
               label="Sponsorat udløber"
               type="date"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
               required
             />
-            <div className="sm:col-span-2">
-              <Input
-                label="Logo-URL"
-                type="url"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://..."
-                required
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Input
-                label="Hjemmeside (valgfrit)"
-                type="url"
-                value={websiteUrl}
-                onChange={(e) => setWebsiteUrl(e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
             {logoUrl.trim() && (
-              <div className="sm:col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-4 flex items-center justify-center min-h-[100px]">
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 flex items-center justify-center min-h-[80px]">
                 <img
                   src={logoUrl.trim()}
                   alt="Logo forhåndsvisning"
-                  className="max-h-20 max-w-full object-contain"
+                  className="max-h-16 max-w-full object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none'
                   }}
                 />
               </div>
             )}
-            <div className="sm:col-span-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-1">
               <Button type="submit" loading={saving}>
-                <Plus className="h-4 w-4" />
                 {editingId ? 'Gem ændringer' : 'Tilføj sponsor'}
               </Button>
-              {editingId && (
-                <Button type="button" variant="secondary" onClick={resetForm}>
-                  Annuller
-                </Button>
-              )}
+              <Button type="button" variant="secondary" onClick={resetForm}>
+                Annuller
+              </Button>
             </div>
           </form>
-        </Card>
+        </Modal>
       )}
 
       {sponsors.length === 0 ? (
@@ -190,7 +205,7 @@ export function SponsorsPage() {
           title="Ingen sponsorer endnu"
           description={
             isAdmin
-              ? 'Tilføj den første sponsor ovenfor.'
+              ? 'Klik «Tilføj sponsor» for at oprette den første.'
               : 'Listen er tom — kontakt admin.'
           }
         />

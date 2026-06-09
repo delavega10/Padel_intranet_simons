@@ -10,5 +10,5 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder-key',
 )
 
-export const DOCUMENTS_BUCKET = 'documents'
 export const NEWS_MEDIA_BUCKET = 'news-media'
+export const EVENT_MARKETING_BUCKET = 'event-marketing-logos'

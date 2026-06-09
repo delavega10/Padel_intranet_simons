@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
-import { AlertCircle, Check, ChevronDown, Trash2 } from 'lucide-react'
+import { AlertCircle, Check, ChevronDown, Copy, Mail, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { buildLunaPlayerSetOfferMail } from '@/lib/lunaPlayerSetOffer'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Textarea } from '@/components/ui/Textarea'
-import type { LunaCaptain } from '@/types'
+import type { LunaCaptain, LunaPlayerSetOffer } from '@/types'
 
 interface LunaCaptainCardProps {
   captain: LunaCaptain
+  playerSetOffer: LunaPlayerSetOffer | null
   isAdmin: boolean
   open: boolean
   onToggle: () => void
@@ -38,12 +40,14 @@ function StatusPill({
 
 export function LunaCaptainCard({
   captain,
+  playerSetOffer,
   isAdmin,
   open,
   onToggle,
   onUpdated,
   onDelete,
 }: LunaCaptainCardProps) {
+  const [copied, setCopied] = useState(false)
   const [comment, setComment] = useState(captain.booking_dates_comment)
   const [editName, setEditName] = useState(captain.name)
   const [editTeam, setEditTeam] = useState(captain.team ?? '')
@@ -98,6 +102,26 @@ export function LunaCaptainCard({
     onUpdated()
   }
 
+  const offerMailText =
+    playerSetOffer != null ? buildLunaPlayerSetOfferMail(captain, playerSetOffer) : ''
+
+  async function copyOfferMail() {
+    if (!offerMailText) return
+    await navigator.clipboard.writeText(offerMailText)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  function sendOfferMail() {
+    if (!offerMailText) return
+    const to = captain.email?.trim()
+    const subject = encodeURIComponent(
+      `Tilbud på spillersæt — LunaLiga${captain.team ? ` (${captain.team})` : ''}`,
+    )
+    const body = encodeURIComponent(offerMailText)
+    window.location.href = `mailto:${to ? encodeURIComponent(to) : ''}?subject=${subject}&body=${body}`
+  }
+
   const hasDates = Boolean(captain.booking_dates_comment.trim())
   const profileDirty =
     isAdmin &&
@@ -134,6 +158,11 @@ export function LunaCaptainCard({
                 ok={captain.matchi_booking_confirmed}
                 okLabel="Matchi ✓"
                 pendingLabel="Matchi"
+              />
+              <StatusPill
+                ok={captain.player_set_offer_sent}
+                okLabel="Sæt-tilbud"
+                pendingLabel="Sæt-tilbud"
               />
             </div>
           )}
@@ -226,6 +255,56 @@ export function LunaCaptainCard({
               {captain.invoice_sent && <Check className="h-4 w-4" />}
             </button>
             <span className="text-sm font-medium text-gray-900">Faktura sendt</span>
+          </label>
+
+          {playerSetOffer && (
+            <div className="rounded-lg border border-padel-200 bg-padel-50/40 p-4 space-y-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-900 normal-case">
+                    Spillersæt-tilbud til kunden
+                  </h4>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Mail med tilbud om {playerSetOffer.set_name}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="secondary" className="text-sm" onClick={copyOfferMail}>
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {copied ? 'Kopieret' : 'Kopiér'}
+                  </Button>
+                  <Button type="button" className="text-sm" onClick={sendOfferMail}>
+                    <Mail className="h-4 w-4" />
+                    {captain.email ? 'Send tilbud' : 'Åbn mail'}
+                  </Button>
+                </div>
+              </div>
+              {!captain.email && isAdmin && (
+                <p className="text-xs text-amber-700">
+                  Tilføj kaptajnens e-mail for at pre-udfylde modtager.
+                </p>
+              )}
+              <pre className="whitespace-pre-wrap rounded-lg border border-gray-200 bg-white p-3 text-xs text-gray-700 font-sans max-h-48 overflow-y-auto">
+                {offerMailText}
+              </pre>
+            </div>
+          )}
+
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50/80 p-3">
+            <button
+              type="button"
+              onClick={() => patch({ player_set_offer_sent: !captain.player_set_offer_sent })}
+              disabled={saving}
+              className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+                captain.player_set_offer_sent
+                  ? 'border-green-600 bg-green-500 text-white'
+                  : 'border-gray-300 bg-white hover:border-padel-500'
+              }`}
+              aria-label="Spillersæt-tilbud sendt"
+            >
+              {captain.player_set_offer_sent && <Check className="h-4 w-4" />}
+            </button>
+            <span className="text-sm font-medium text-gray-900">Spillersæt-tilbud sendt til kunden</span>
           </label>
 
           <label

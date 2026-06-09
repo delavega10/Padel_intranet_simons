@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { AlertTriangle, Check, ClipboardList, Plus, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, ClipboardList, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -9,17 +9,22 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Select } from '@/components/ui/Select'
 import { Card } from '@/components/ui/Card'
+import { Modal } from '@/components/ui/Modal'
+import { DailyTaskAreaSection } from '@/components/daily-tasks/DailyTaskAreaSection'
 import { formatDate } from '@/lib/format'
+import {
+  DAILY_TASK_AREAS,
+  DAILY_TASK_AREA_LABELS,
+} from '@/lib/dailyTaskAreas'
 import {
   WEEKDAYS,
   WEEKDAY_LABELS,
-  ROUND_NUMBERS,
   getTodayWeekday,
   getWeekdayFromDate,
   todayDateString,
   type Weekday,
 } from '@/lib/weekdays'
-import type { DailyTask, DailyTaskCompletion, EmployeeCase } from '@/types'
+import type { DailyTask, DailyTaskArea, DailyTaskCompletion, EmployeeCase } from '@/types'
 
 export function DailyTasksPage() {
   const { user, profile, isAdmin } = useAuth()
@@ -30,12 +35,15 @@ export function DailyTasksPage() {
   const [activeDay, setActiveDay] = useState<Weekday>(getTodayWeekday())
   const [viewDate, setViewDate] = useState(todayDateString())
 
+  const [caseModalOpen, setCaseModalOpen] = useState(false)
   const [caseTitle, setCaseTitle] = useState('')
   const [caseDesc, setCaseDesc] = useState('')
   const [caseSaving, setCaseSaving] = useState(false)
+  const [caseSent, setCaseSent] = useState(false)
 
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [newTitle, setNewTitle] = useState('')
-  const [newRound, setNewRound] = useState(1)
+  const [newArea, setNewArea] = useState<DailyTaskArea>('cafe')
   const [taskSaving, setTaskSaving] = useState(false)
 
   const authorName = profile?.full_name || profile?.email?.split('@')[0] || 'Bruger'
@@ -47,7 +55,14 @@ export function DailyTasksPage() {
       .select('*')
       .eq('completion_date', viewDate)
 
-    if (tasksRes.data) setTasks(tasksRes.data as DailyTask[])
+    if (tasksRes.data) {
+      setTasks(
+        (tasksRes.data as DailyTask[]).map((t) => ({
+          ...t,
+          area: t.area ?? 'hallen',
+        })),
+      )
+    }
     if (compRes.data) setCompletions(compRes.data as DailyTaskCompletion[])
 
     if (isAdmin) {
@@ -76,6 +91,10 @@ export function DailyTasksPage() {
   const dayTasks = tasks.filter((t) => t.weekday === activeDay)
   const completedIds = new Set(completions.map((c) => c.task_id))
 
+  function tasksForArea(area: DailyTaskArea) {
+    return dayTasks.filter((t) => t.area === area)
+  }
+
   async function toggleTask(taskId: string) {
     if (!user) return
     if (completedIds.has(taskId)) {
@@ -94,18 +113,32 @@ export function DailyTasksPage() {
     await load()
   }
 
+  function resetTaskForm() {
+    setTaskModalOpen(false)
+    setNewTitle('')
+    setNewArea('cafe')
+  }
+
+  function openTaskModal(area?: DailyTaskArea) {
+    setNewTitle('')
+    setNewArea(area ?? 'cafe')
+    setTaskModalOpen(true)
+  }
+
   async function addTask(e: React.FormEvent) {
     e.preventDefault()
     if (!isAdmin || !newTitle.trim()) return
     setTaskSaving(true)
+    const areaTasks = tasksForArea(newArea)
     await supabase.from('daily_tasks').insert({
       weekday: activeDay,
-      round_number: newRound,
+      area: newArea,
+      round_number: 1,
       title: newTitle.trim(),
-      sort_order: dayTasks.length,
+      sort_order: areaTasks.length,
     })
-    setNewTitle('')
     setTaskSaving(false)
+    resetTaskForm()
     await load()
   }
 
@@ -113,6 +146,20 @@ export function DailyTasksPage() {
     if (!isAdmin || !confirm('Slet opgaven?')) return
     await supabase.from('daily_tasks').delete().eq('id', id)
     await load()
+  }
+
+  function resetCaseForm() {
+    setCaseModalOpen(false)
+    setCaseTitle('')
+    setCaseDesc('')
+    setCaseSent(false)
+  }
+
+  function openCaseModal() {
+    setCaseTitle('')
+    setCaseDesc('')
+    setCaseSent(false)
+    setCaseModalOpen(true)
   }
 
   async function submitCase(e: React.FormEvent) {
@@ -125,10 +172,12 @@ export function DailyTasksPage() {
       created_by: user.id,
       created_by_name: authorName,
     })
+    setCaseSaving(false)
+    setCaseSent(true)
     setCaseTitle('')
     setCaseDesc('')
-    setCaseSaving(false)
     await load()
+    setTimeout(() => resetCaseForm(), 1500)
   }
 
   async function resolveCase(id: string) {
@@ -147,12 +196,131 @@ export function DailyTasksPage() {
   if (loading) return <LoadingSpinner />
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 sm:pb-0">
       <PageHeader
         title="Daglige gøremål"
-        description="Tjekliste per ugedag med runder — afkryds når opgaver er udført"
+        description="Opgaver fordelt på Cafe, Toilet, Bad og Hallen — afkryds når de er udført"
         icon={ClipboardList}
+        action={
+          <div className="flex flex-wrap gap-2">
+            {isAdmin && (
+              <Button type="button" onClick={() => openTaskModal()} className="hidden sm:inline-flex">
+                <Plus className="h-4 w-4" />
+                Tilføj opgave
+              </Button>
+            )}
+            <Button type="button" onClick={openCaseModal} className="hidden sm:inline-flex">
+              <AlertTriangle className="h-4 w-4" />
+              Opret sag
+            </Button>
+          </div>
+        }
       />
+
+      {isAdmin && (
+        <Modal
+          open={taskModalOpen}
+          onClose={resetTaskForm}
+          title={`Ny opgave — ${WEEKDAY_LABELS[activeDay]}`}
+        >
+          <form onSubmit={addTask} className="space-y-4">
+            <Select
+              label="Område"
+              value={newArea}
+              onChange={(e) => setNewArea(e.target.value as DailyTaskArea)}
+            >
+              {DAILY_TASK_AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {DAILY_TASK_AREA_LABELS[area]}
+                </option>
+              ))}
+            </Select>
+            <Input
+              label="Opgave"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="f.eks. Fyld kaffemaskine"
+              required
+            />
+            <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+              <Button type="submit" loading={taskSaving} className="w-full sm:w-auto">
+                Tilføj opgave
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={resetTaskForm}
+                className="w-full sm:w-auto"
+              >
+                Annuller
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      <Modal open={caseModalOpen} onClose={resetCaseForm} title="Opret sag til admin">
+        {caseSent ? (
+          <div className="py-4 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+              <Check className="h-6 w-6" />
+            </div>
+            <p className="font-medium text-gray-900">Sagen er sendt</p>
+            <p className="mt-1 text-sm text-gray-500">
+              En administrator ser den på dashboard og her under daglige opgaver.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="mb-4 text-sm text-gray-500">
+              Beskriv noget der skal fixes — admin får besked med det samme.
+            </p>
+            <form onSubmit={submitCase} className="space-y-4">
+              <Input
+                label="Kort titel"
+                value={caseTitle}
+                onChange={(e) => setCaseTitle(e.target.value)}
+                placeholder="f.eks. Løs håndtag ved indgang"
+                required
+              />
+              <Textarea
+                label="Beskrivelse"
+                value={caseDesc}
+                onChange={(e) => setCaseDesc(e.target.value)}
+                placeholder="Beskriv problemet..."
+                required
+                rows={4}
+              />
+              <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+                <Button type="submit" loading={caseSaving} className="w-full sm:w-auto">
+                  Send sag til admin
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={resetCaseForm}
+                  className="w-full sm:w-auto"
+                >
+                  Annuller
+                </Button>
+              </div>
+            </form>
+          </>
+        )}
+      </Modal>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-gray-200 bg-white/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur-sm sm:hidden">
+        {isAdmin && (
+          <Button type="button" variant="secondary" onClick={() => openTaskModal()} className="flex-1">
+            <Plus className="h-4 w-4" />
+            Opgave
+          </Button>
+        )}
+        <Button type="button" onClick={openCaseModal} className="flex-1">
+          <AlertTriangle className="h-4 w-4" />
+          Opret sag
+        </Button>
+      </div>
 
       {isAdmin && openCases.length > 0 && (
         <Card className="border-amber-200 bg-amber-50">
@@ -198,18 +366,18 @@ export function DailyTasksPage() {
             type="date"
             value={viewDate}
             onChange={(e) => setViewDate(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2">
+      <div className="flex gap-2 overflow-x-auto border-b border-gray-200 pb-2 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
         {WEEKDAYS.map((day) => (
           <button
             key={day}
             type="button"
             onClick={() => setActiveDay(day)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:px-4 ${
               activeDay === day
                 ? 'bg-padel-600 text-white'
                 : day === getTodayWeekday()
@@ -219,168 +387,36 @@ export function DailyTasksPage() {
           >
             {WEEKDAY_LABELS[day]}
             {day === getTodayWeekday() && (
-              <span className="ml-1 text-xs opacity-80">(i dag)</span>
+              <span className="ml-1 hidden text-xs opacity-80 sm:inline">(i dag)</span>
             )}
           </button>
         ))}
       </div>
 
-      {isAdmin && (
-        <Card>
-          <h3 className="font-semibold text-gray-900 mb-4 normal-case">
-            Admin: Opret opgave for {WEEKDAY_LABELS[activeDay]}
-          </h3>
-          <form onSubmit={addTask} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <div className="flex-1">
-              <Input
-                label="Opgave"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="f.eks. Tjek toiletter"
-                required
-              />
-            </div>
-            <div className="w-full sm:w-36">
-              <Select
-                label="Runde"
-                value={String(newRound)}
-                onChange={(e) => setNewRound(Number(e.target.value))}
-              >
-                {ROUND_NUMBERS.map((n) => (
-                  <option key={n} value={n}>
-                    Runde {n}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <Button type="submit" loading={taskSaving}>
-              <Plus className="h-4 w-4" />
-              Tilføj
-            </Button>
-          </form>
-        </Card>
-      )}
-
-      <div className="space-y-6">
-        {ROUND_NUMBERS.map((round) => {
-          const roundTasks = dayTasks.filter((t) => t.round_number === round)
-          if (roundTasks.length === 0) return null
-
-          const done = roundTasks.filter((t) => completedIds.has(t.id)).length
-
-          return (
-            <section key={round} className="content-card">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 normal-case">
-                  Runde {round}
-                </h3>
-                <span className="text-sm text-gray-500">
-                  {done}/{roundTasks.length} udført
-                </span>
-              </div>
-              <ul className="space-y-2">
-                {roundTasks.map((task) => {
-                  const done = completedIds.has(task.id)
-                  const completion = completions.find((c) => c.task_id === task.id)
-                  return (
-                    <li
-                      key={task.id}
-                      className={`flex items-start gap-3 rounded-lg border p-3 transition-colors ${
-                        done
-                          ? 'border-green-200 bg-green-50/60'
-                          : 'border-red-200 bg-red-50/60'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleTask(task.id)}
-                        disabled={done && !isAdmin}
-                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 shadow-sm transition-colors ${
-                          done
-                            ? 'border-green-600 bg-green-500 text-white ring-2 ring-green-300'
-                            : 'border-red-500 bg-red-100 ring-2 ring-red-300 hover:bg-red-200 hover:ring-red-400'
-                        } ${done && !isAdmin ? 'cursor-default' : ''}`}
-                        aria-label={
-                          done
-                            ? isAdmin
-                              ? 'Fjern afkrydsning'
-                              : 'Udført'
-                            : 'Marker udført'
-                        }
-                      >
-                        {done && <Check className="h-4 w-4" />}
-                      </button>
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={`text-sm font-medium ${
-                            done ? 'text-gray-500 line-through' : 'text-gray-900'
-                          }`}
-                        >
-                          {task.title}
-                        </p>
-                        {done && completion && (
-                          <p className="mt-1 text-xs text-gray-500">
-                            Afkrydset {formatDate(completion.completed_at.slice(0, 10))}
-                          </p>
-                        )}
-                      </div>
-                      {isAdmin && (
-                        <button
-                          type="button"
-                          onClick={() => deleteTask(task.id)}
-                          className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-            </section>
-          )
-        })}
-
-        {dayTasks.length === 0 && (
-          <Card>
-            <p className="text-sm text-gray-500">
-              {isAdmin
-                ? `Ingen opgaver for ${WEEKDAY_LABELS[activeDay]} endnu. Tilføj opgaver ovenfor.`
-                : `Ingen opgaver planlagt for ${WEEKDAY_LABELS[activeDay]}.`}
-            </p>
-          </Card>
-        )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {DAILY_TASK_AREAS.map((area) => (
+          <DailyTaskAreaSection
+            key={area}
+            area={area}
+            tasks={tasksForArea(area)}
+            completions={completions}
+            completedIds={completedIds}
+            isAdmin={isAdmin}
+            onToggle={toggleTask}
+            onDelete={deleteTask}
+          />
+        ))}
       </div>
 
-      <Card>
-        <h3 className="font-semibold text-gray-900 mb-2 normal-case flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-500" />
-          Opret sag (noget der skal fixes)
-        </h3>
-        <p className="text-sm text-gray-500 mb-4">
-          Beskriv problemet — en administrator ser det på dashboard og under daglige opgaver.
-        </p>
-        <form onSubmit={submitCase} className="space-y-4">
-          <Input
-            label="Kort titel"
-            value={caseTitle}
-            onChange={(e) => setCaseTitle(e.target.value)}
-            placeholder="f.eks. Løs håndtag ved indgang"
-            required
-          />
-          <Textarea
-            label="Beskrivelse"
-            value={caseDesc}
-            onChange={(e) => setCaseDesc(e.target.value)}
-            placeholder="Beskriv problemet..."
-            required
-            rows={3}
-          />
-          <Button type="submit" loading={caseSaving}>
-            Send sag til admin
-          </Button>
-        </form>
-      </Card>
+      {dayTasks.length === 0 && (
+        <Card>
+          <p className="text-sm text-gray-500 text-center">
+            {isAdmin
+              ? `Ingen opgaver for ${WEEKDAY_LABELS[activeDay]} endnu. Klik «Tilføj opgave» for at komme i gang.`
+              : `Ingen opgaver planlagt for ${WEEKDAY_LABELS[activeDay]}.`}
+          </p>
+        </Card>
+      )}
     </div>
   )
 }

@@ -5,18 +5,19 @@ import { SetupPage } from '@/pages/SetupPage'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { AdminRoute } from '@/routes/AdminRoute'
-import { TrainerRoute } from '@/routes/TrainerRoute'
 import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { CalendarPage } from '@/pages/CalendarPage'
-import { DocumentsPage } from '@/pages/DocumentsPage'
-import { TrainingPage } from '@/pages/TrainingPage'
 import { AdminPage } from '@/pages/AdminPage'
 import { DailyTasksPage } from '@/pages/DailyTasksPage'
 import { LunaLigaPage } from '@/pages/LunaLigaPage'
 import { AdminTodoPage } from '@/pages/AdminTodoPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { SponsorsPage } from '@/pages/SponsorsPage'
+import { CollaborationsPage } from '@/pages/CollaborationsPage'
+import { CompanyEventsPage } from '@/pages/CompanyEventsPage'
+import { EmilPage } from '@/pages/EmilPage'
+import { EmilRoute } from '@/routes/EmilRoute'
 
 export default function App() {
   if (!isSupabaseConfigured) {
@@ -34,17 +35,18 @@ export default function App() {
               <Route index element={<DashboardPage />} />
               <Route path="nyheder/*" element={<Navigate to="/" replace />} />
               <Route path="goremal" element={<DailyTasksPage />} />
-              <Route path="lunaliga" element={<LunaLigaPage />} />
-              <Route path="bestillinger" element={<OrdersPage />} />
               <Route path="kalender" element={<CalendarPage />} />
-              <Route path="dokumenter" element={<DocumentsPage />} />
-              <Route path="sponsorer" element={<SponsorsPage />} />
 
-              <Route element={<TrainerRoute />}>
-                <Route path="traener" element={<TrainingPage />} />
+              <Route element={<EmilRoute />}>
+                <Route path="emil" element={<EmilPage />} />
               </Route>
 
               <Route element={<AdminRoute />}>
+                <Route path="lunaliga" element={<LunaLigaPage />} />
+                <Route path="bestillinger" element={<OrdersPage />} />
+                <Route path="sponsorer" element={<SponsorsPage />} />
+                <Route path="samarbejde" element={<CollaborationsPage />} />
+                <Route path="firma-events" element={<CompanyEventsPage />} />
                 <Route path="admin" element={<AdminPage />} />
                 <Route path="admin-todo" element={<AdminTodoPage />} />
               </Route>

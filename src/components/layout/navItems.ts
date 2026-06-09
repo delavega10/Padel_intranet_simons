@@ -1,8 +1,6 @@
 import {
   LayoutDashboard,
   Calendar,
-  FileText,
-  Dumbbell,
   Shield,
   ClipboardList,
   ListTodo,
@@ -14,6 +12,9 @@ import {
   Coffee,
   Flag,
   Handshake,
+  Users,
+  Building2,
+  User,
   type LucideIcon,
 } from 'lucide-react'
 import { siteLinks, isExternalLinkConfigured } from '@/config/siteLinks'
@@ -29,7 +30,7 @@ export interface NavItem {
   icon: LucideIcon
   section: NavSection
   adminOnly?: boolean
-  trainerOnly?: boolean
+  emilOnly?: boolean
 }
 
 const externalNavItems: NavItem[] = [
@@ -38,42 +39,48 @@ const externalNavItems: NavItem[] = [
     label: 'Vagtplan',
     icon: CalendarClock,
     section: 'links',
+    adminOnly: true,
   },
   {
     href: siteLinks.padelplus,
     label: 'PadelPlus',
     icon: ExternalLink,
     section: 'links',
+    adminOnly: true,
   },
   {
     href: siteLinks.bookingMoedelokale,
     label: 'Booking mødelokale',
     icon: DoorOpen,
     section: 'links',
+    adminOnly: true,
   },
   {
     href: siteLinks.cafe,
     label: 'Cafe',
     icon: Coffee,
     section: 'links',
+    adminOnly: true,
   },
   {
     href: siteLinks.simgolf,
     label: 'SimGolf',
     icon: Flag,
     section: 'links',
+    adminOnly: true,
   },
 ]
 
 export const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, section: 'main' },
   { to: '/goremal', label: 'Daglige opgaver', icon: ClipboardList, section: 'main' },
-  { to: '/lunaliga', label: 'LunaLiga oversigt', icon: Trophy, section: 'main' },
-  { to: '/bestillinger', label: 'Huskeseddel', icon: ClipboardListIcon, section: 'main' },
   { to: '/kalender', label: 'Kalender', icon: Calendar, section: 'main' },
-  { to: '/dokumenter', label: 'Dokumenter', icon: FileText, section: 'main' },
-  { to: '/sponsorer', label: 'Sponsorer', icon: Handshake, section: 'main' },
-  { to: '/traener', label: 'Trænerområde', icon: Dumbbell, section: 'main', trainerOnly: true },
+  { to: '/lunaliga', label: 'LunaLiga oversigt', icon: Trophy, section: 'main', adminOnly: true },
+  { to: '/bestillinger', label: 'Huskeseddel', icon: ClipboardListIcon, section: 'main', adminOnly: true },
+  { to: '/sponsorer', label: 'Sponsorer', icon: Handshake, section: 'main', adminOnly: true },
+  { to: '/samarbejde', label: 'Samarbejde', icon: Users, section: 'main', adminOnly: true },
+  { to: '/firma-events', label: 'Firma events', icon: Building2, section: 'main', adminOnly: true },
+  { to: '/emil', label: 'Emil', icon: User, section: 'main', emilOnly: true },
   ...externalNavItems,
   {
     to: '/admin-todo',
@@ -87,11 +94,11 @@ export const navItems: NavItem[] = [
 
 export function filterNavItem(
   item: NavItem,
-  opts: { isAdmin: boolean; isTrainer: boolean },
+  opts: { isAdmin: boolean; isEmil: boolean },
 ): boolean {
   if (item.to === '/nyheder') return false
   if (item.adminOnly && !opts.isAdmin) return false
-  if (item.trainerOnly && !opts.isAdmin && !opts.isTrainer) return false
+  if (item.emilOnly && !opts.isAdmin && !opts.isEmil) return false
   return true
 }
 

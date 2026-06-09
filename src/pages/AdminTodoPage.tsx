@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, ListTodo, Trash2 } from 'lucide-react'
+import { Check, ListTodo, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Select } from '@/components/ui/Select'
+import { Modal } from '@/components/ui/Modal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import {
   ADMIN_TODO_PRIORITY_LABELS,
@@ -27,6 +28,7 @@ export function AdminTodoPage() {
   const { user } = useAuth()
   const [todos, setTodos] = useState<AdminTodo[]>([])
   const [loading, setLoading] = useState(true)
+  const [formOpen, setFormOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<AdminTodoPriority>('mellem')
@@ -59,6 +61,20 @@ export function AdminTodoPage() {
     return true
   })
 
+  function resetForm() {
+    setFormOpen(false)
+    setTitle('')
+    setDescription('')
+    setPriority('mellem')
+  }
+
+  function openCreate() {
+    setTitle('')
+    setDescription('')
+    setPriority('mellem')
+    setFormOpen(true)
+  }
+
   async function addTodo(e: React.FormEvent) {
     e.preventDefault()
     if (!user || !title.trim()) return
@@ -69,10 +85,8 @@ export function AdminTodoPage() {
       priority,
       created_by: user.id,
     })
-    setTitle('')
-    setDescription('')
-    setPriority('mellem')
     setSaving(false)
+    resetForm()
     await load()
   }
 
@@ -98,10 +112,15 @@ export function AdminTodoPage() {
         title="To-do liste"
         description="Privat admin-liste — kun synlig for administratorer"
         icon={ListTodo}
+        action={
+          <Button type="button" onClick={openCreate}>
+            <Plus className="h-4 w-4" />
+            Ny opgave
+          </Button>
+        }
       />
 
-      <Card>
-        <h3 className="font-semibold text-gray-900 mb-4 normal-case">Ny opgave</h3>
+      <Modal open={formOpen} onClose={resetForm} title="Ny opgave">
         <form onSubmit={addTodo} className="space-y-4">
           <Input
             label="Overskrift"
@@ -128,11 +147,16 @@ export function AdminTodoPage() {
               </option>
             ))}
           </Select>
-          <Button type="submit" loading={saving}>
-            Tilføj opgave
-          </Button>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button type="submit" loading={saving}>
+              Tilføj opgave
+            </Button>
+            <Button type="button" variant="secondary" onClick={resetForm}>
+              Annuller
+            </Button>
+          </div>
         </form>
-      </Card>
+      </Modal>
 
       <div className="flex flex-wrap gap-2">
         {(
@@ -162,7 +186,7 @@ export function AdminTodoPage() {
           title="Ingen opgaver"
           description={
             filter === 'aktive'
-              ? 'Opret en ny opgave ovenfor.'
+              ? 'Klik «Ny opgave» for at oprette en opgave.'
               : 'Ingen opgaver i denne visning.'
           }
         />

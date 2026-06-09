@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LunaCaptainCard } from '@/components/luna/LunaCaptainCard'
-import type { LunaCaptain } from '@/types'
+import { LunaPlayerSetOfferSettings } from '@/components/luna/LunaPlayerSetOfferSettings'
+import type { LunaCaptain, LunaPlayerSetOffer } from '@/types'
 
 export function LunaLigaPage() {
   const { isAdmin } = useAuth()
   const [captains, setCaptains] = useState<LunaCaptain[]>([])
+  const [playerSetOffer, setPlayerSetOffer] = useState<LunaPlayerSetOffer | null>(null)
   const [loading, setLoading] = useState(true)
   const [name, setName] = useState('')
   const [team, setTeam] = useState('')
@@ -24,12 +26,12 @@ export function LunaLigaPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('luna_captains')
-      .select('*')
-      .order('sort_order')
-      .order('name')
-    if (data) setCaptains(data as LunaCaptain[])
+    const [captainsRes, offerRes] = await Promise.all([
+      supabase.from('luna_captains').select('*').order('sort_order').order('name'),
+      supabase.from('luna_player_set_offer').select('*').limit(1).maybeSingle(),
+    ])
+    if (captainsRes.data) setCaptains(captainsRes.data as LunaCaptain[])
+    setPlayerSetOffer((offerRes.data as LunaPlayerSetOffer | null) ?? null)
     setLoading(false)
   }, [])
 
@@ -90,8 +92,14 @@ export function LunaLigaPage() {
     <div className="space-y-6">
       <PageHeader
         title="LunaLiga oversigt"
-        description="Kaptajner, banedatoer, faktura og Matchi-bekræftelse"
+        description="Kaptajner, banedatoer, spillersæt-tilbud, faktura og Matchi-bekræftelse"
         icon={Trophy}
+      />
+
+      <LunaPlayerSetOfferSettings
+        isAdmin={isAdmin}
+        offer={playerSetOffer}
+        onSaved={load}
       />
 
       {isAdmin && (
@@ -154,6 +162,7 @@ export function LunaLigaPage() {
               <li key={c.id}>
                 <LunaCaptainCard
                   captain={c}
+                  playerSetOffer={playerSetOffer}
                   isAdmin={isAdmin}
                   open={openIds.has(c.id)}
                   onToggle={() => toggleCaptain(c.id)}

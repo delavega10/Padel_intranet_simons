@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { isEmilProfile } from '@/lib/emilAccess'
 import type { Profile, UserRole } from '@/types'
 
 interface AuthContextValue {
@@ -21,6 +22,7 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>
   isAdmin: boolean
   isTrainer: boolean
+  isEmil: boolean
   isApproved: boolean
   role: UserRole | null
 }
@@ -115,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshProfile,
       isAdmin: profile?.role === 'admin' && profile.approved,
       isTrainer: profile?.role === 'traener' && profile.approved,
+      isEmil: isEmilProfile(profile),
       isApproved: Boolean(profile?.approved),
       role: profile?.approved ? profile.role : null,
     }),
