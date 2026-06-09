@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { siteLinks, isExternalLinkConfigured } from '@/config/siteLinks'
+import { EMIL_ALLOWED_PATHS, isEmilOnlyUser } from '@/lib/emilAccess'
 
 export type NavSection = 'main' | 'links' | 'admin'
 
@@ -99,6 +100,10 @@ export function filterNavItem(
   if (item.to === '/nyheder') return false
   if (item.adminOnly && !opts.isAdmin) return false
   if (item.emilOnly && !opts.isAdmin && !opts.isEmil) return false
+  if (isEmilOnlyUser(opts.isEmil, opts.isAdmin)) {
+    if (item.href) return false
+    if (!item.to || !EMIL_ALLOWED_PATHS.includes(item.to)) return false
+  }
   return true
 }
 

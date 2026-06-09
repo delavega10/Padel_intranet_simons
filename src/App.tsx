@@ -18,6 +18,7 @@ import { CollaborationsPage } from '@/pages/CollaborationsPage'
 import { CompanyEventsPage } from '@/pages/CompanyEventsPage'
 import { EmilPage } from '@/pages/EmilPage'
 import { EmilRoute } from '@/routes/EmilRoute'
+import { NonEmilRoute } from '@/routes/NonEmilRoute'
 
 export default function App() {
   if (!isSupabaseConfigured) {
@@ -34,7 +35,9 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index element={<DashboardPage />} />
               <Route path="nyheder/*" element={<Navigate to="/" replace />} />
-              <Route path="goremal" element={<DailyTasksPage />} />
+              <Route element={<NonEmilRoute />}>
+                <Route path="goremal" element={<DailyTasksPage />} />
+              </Route>
               <Route path="kalender" element={<CalendarPage />} />
 
               <Route element={<EmilRoute />}>

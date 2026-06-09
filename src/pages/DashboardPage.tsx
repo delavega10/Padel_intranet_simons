@@ -9,6 +9,7 @@ import {
   ArrowRight,
   LayoutDashboard,
   ClipboardList,
+  User,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -17,13 +18,19 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { formatDate, formatTime } from '@/lib/format'
 import type { EmployeeCase, Event } from '@/types'
 
-const quickLinks = [
+const employeeQuickLinks = [
   { to: '/goremal', label: 'Daglige opgaver', icon: ClipboardList },
   { to: '/kalender', label: 'Kalender', icon: Calendar },
 ]
 
+const emilQuickLinks = [
+  { to: '/kalender', label: 'Kalender', icon: Calendar },
+  { to: '/emil', label: 'Emil', icon: User },
+]
+
 export function DashboardPage() {
-  const { profile, isAdmin } = useAuth()
+  const { profile, isAdmin, isEmil } = useAuth()
+  const quickLinks = isEmil && !isAdmin ? emilQuickLinks : employeeQuickLinks
   const [events, setEvents] = useState<Event[]>([])
   const [openCases, setOpenCases] = useState<EmployeeCase[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,7 +103,7 @@ export function DashboardPage() {
             <Newspaper className="h-5 w-5 text-padel-600" />
             Nyhedsfeed
           </h2>
-          <NewsFeed showComposer showHeader={false} />
+          <NewsFeed showComposer={!isEmil || isAdmin} showHeader={false} />
         </div>
 
         <div className="space-y-4">
