@@ -76,7 +76,14 @@ export type Weekday =
   | 'saturday'
   | 'sunday'
 
-export type DailyTaskArea = 'cafe' | 'toilet' | 'bad' | 'hallen'
+export type DailyTaskArea =
+  | 'cafe'
+  | 'omklaedningsrum'
+  | 'toiletter'
+  | 'hallen'
+  | 'sal1'
+  | 'udeareal'
+  | 'shop'
 
 export interface DailyTask {
   id: string
