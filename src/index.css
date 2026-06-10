@@ -51,7 +51,9 @@
   & .text-gray-800 { color: var(--color-gray-200); }
   & .text-gray-700 { color: var(--color-gray-300); }
   & .text-gray-600 { color: var(--color-gray-400); }
+  & .text-gray-500 { color: var(--color-gray-400); }
   & .text-padel-700 { color: var(--color-padel-400); }
+  & .text-padel-800 { color: var(--color-padel-300); }
   & .text-padel-600 { color: var(--color-padel-400); }
   & .text-red-700, & .text-red-600 { color: var(--color-red-400); }
   & .text-amber-900 { color: var(--color-amber-200); }
@@ -118,4 +120,126 @@
   .section-toggle {
     @apply flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50;
   }
+
+  /* Daglige opgaver — eksplicit kontrast i lys og mørk tilstand */
+  .daily-round {
+    @apply overflow-hidden rounded-xl border-2 transition-opacity;
+  }
+  .daily-round-1 { @apply border-padel-200 bg-padel-50; }
+  .daily-round-2 { @apply border-padel-300 bg-padel-100/60; }
+  .daily-round-3 { @apply border-padel-400 bg-padel-100; }
+  .daily-round-4 { @apply border-indigo-200 bg-indigo-50; }
+
+  .daily-round-header { @apply font-semibold normal-case; }
+  .daily-round-header-1 { @apply text-padel-800; }
+  .daily-round-header-2 { @apply text-padel-800; }
+  .daily-round-header-3 { @apply text-padel-900; }
+  .daily-round-header-4 { @apply text-indigo-800; }
+
+  .daily-round-toggle:hover { background-color: rgb(255 255 255 / 0.45); }
+  .daily-round-chevron { color: var(--color-gray-400); }
+  .daily-round-hint { color: var(--color-gray-500); }
+  .daily-round-body { border-top: 1px solid rgb(255 255 255 / 0.55); }
+
+  .daily-round-badge {
+    @apply shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .daily-round-badge--complete { @apply bg-green-100 text-green-800; }
+  .daily-round-badge--progress { @apply bg-gray-100 text-gray-600; }
+
+  .daily-task-row {
+    @apply flex items-start gap-3 rounded-lg border bg-white p-3 transition-colors;
+  }
+  .daily-task-row--done { @apply border-green-200; }
+  .daily-task-row--open { @apply border-red-200; }
+
+  .daily-task-check {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 shadow-sm transition-colors;
+  }
+  .daily-task-check--done {
+    @apply border-green-600 bg-green-500 text-white ring-2 ring-green-300;
+  }
+  .daily-task-check--open {
+    @apply border-red-500 bg-red-50 ring-2 ring-red-200 hover:bg-red-100 hover:ring-red-300;
+  }
+
+  .daily-task-title { @apply text-gray-900; }
+  .daily-task-title--done { @apply text-gray-500 line-through; }
+  .daily-task-meta { color: var(--color-gray-500); }
+
+  .daily-shift-info { @apply border-padel-200 bg-padel-50; }
+  .daily-shift-info-title { @apply text-padel-900; }
+  .daily-shift-info-sub { color: color-mix(in srgb, var(--color-padel-800) 85%, transparent); }
+}
+
+/* Daglige opgaver — mørk tilstand */
+.dark {
+  & .daily-round-1 {
+    border-color: var(--color-padel-700);
+    background-color: color-mix(in srgb, var(--color-padel-900) 40%, var(--color-gray-900));
+  }
+  & .daily-round-2 {
+    border-color: var(--color-padel-600);
+    background-color: color-mix(in srgb, var(--color-padel-900) 50%, var(--color-gray-900));
+  }
+  & .daily-round-3 {
+    border-color: var(--color-padel-500);
+    background-color: color-mix(in srgb, var(--color-padel-800) 35%, var(--color-gray-900));
+  }
+  & .daily-round-4 {
+    border-color: var(--color-indigo-600);
+    background-color: color-mix(in srgb, var(--color-indigo-900) 45%, var(--color-gray-900));
+  }
+
+  & .daily-round-header-1,
+  & .daily-round-header-2,
+  & .daily-round-header-3 { color: var(--color-padel-300); }
+  & .daily-round-header-4 { color: var(--color-indigo-300); }
+
+  & .daily-round-toggle:hover { background-color: rgb(255 255 255 / 0.06); }
+  & .daily-round-chevron { color: var(--color-gray-500); }
+  & .daily-round-hint { color: var(--color-gray-400); }
+  & .daily-round-body { border-top-color: var(--color-gray-700); }
+
+  & .daily-round-badge--complete {
+    background-color: color-mix(in srgb, var(--color-green-900) 50%, var(--color-gray-800));
+    color: var(--color-green-300);
+  }
+  & .daily-round-badge--progress {
+    background-color: var(--color-gray-800);
+    color: var(--color-gray-300);
+  }
+
+  & .daily-task-row { background-color: var(--color-gray-800); }
+  & .daily-task-row--done {
+    border-color: color-mix(in srgb, var(--color-green-700) 55%, transparent);
+  }
+  & .daily-task-row--open {
+    border-color: color-mix(in srgb, var(--color-red-600) 55%, transparent);
+  }
+
+  & .daily-task-check--done {
+    border-color: var(--color-green-500);
+    background-color: var(--color-green-600);
+    --tw-ring-color: color-mix(in srgb, var(--color-green-700) 60%, transparent);
+  }
+  & .daily-task-check--open {
+    border-color: var(--color-red-400);
+    background-color: color-mix(in srgb, var(--color-red-900) 40%, var(--color-gray-800));
+    --tw-ring-color: color-mix(in srgb, var(--color-red-700) 50%, transparent);
+  }
+  & .daily-task-check--open:hover {
+    background-color: color-mix(in srgb, var(--color-red-900) 55%, var(--color-gray-800));
+  }
+
+  & .daily-task-title { color: var(--color-gray-100); }
+  & .daily-task-title--done { color: var(--color-gray-500); }
+  & .daily-task-meta { color: var(--color-gray-500); }
+
+  & .daily-shift-info {
+    border-color: var(--color-padel-700);
+    background-color: color-mix(in srgb, var(--color-padel-900) 35%, var(--color-gray-900));
+  }
+  & .daily-shift-info-title { color: var(--color-padel-200); }
+  & .daily-shift-info-sub { color: var(--color-padel-400); }
 }

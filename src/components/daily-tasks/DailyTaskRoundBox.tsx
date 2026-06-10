@@ -41,18 +41,16 @@ function TaskRow({
 }) {
   return (
     <li
-      className={`flex items-start gap-3 rounded-lg border bg-white p-3 transition-colors ${
-        isDone ? 'border-green-200' : 'border-red-200'
-      } ${disabled ? 'opacity-50' : ''}`}
+      className={`daily-task-row ${isDone ? 'daily-task-row--done' : 'daily-task-row--open'} ${
+        disabled ? 'opacity-50' : ''
+      }`}
     >
       <button
         type="button"
         onClick={onToggle}
         disabled={disabled || (isDone && !isAdmin)}
-        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 shadow-sm transition-colors ${
-          isDone
-            ? 'border-green-600 bg-green-500 text-white ring-2 ring-green-300'
-            : 'border-red-500 bg-red-100 ring-2 ring-red-300 hover:bg-red-200 hover:ring-red-400'
+        className={`daily-task-check mt-0.5 ${
+          isDone ? 'daily-task-check--done' : 'daily-task-check--open'
         } ${isDone && !isAdmin ? 'cursor-default' : ''} ${disabled ? 'cursor-not-allowed' : ''}`}
         aria-label={isDone ? (isAdmin ? 'Fjern afkrydsning' : 'Udført') : 'Marker udført'}
       >
@@ -61,13 +59,13 @@ function TaskRow({
       <div className="min-w-0 flex-1">
         <p
           className={`text-sm font-medium ${
-            isDone ? 'text-gray-500 line-through' : 'text-gray-900'
+            isDone ? 'daily-task-title--done' : 'daily-task-title'
           }`}
         >
           {task.title}
         </p>
         {isDone && completion && (
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="daily-task-meta mt-1 text-xs">
             Afkrydset {formatDate(completion.completed_at.slice(0, 10))}
           </p>
         )}
@@ -104,9 +102,7 @@ export function DailyTaskRoundBox({
 
   return (
     <section
-      className={`overflow-hidden rounded-xl border-2 transition-opacity ${colors.border} ${colors.bg} ${
-        !canExpand && !isAdmin ? 'opacity-60' : ''
-      }`}
+      className={`${colors.box} ${!canExpand && !isAdmin ? 'opacity-60' : ''}`}
     >
       <button
         type="button"
@@ -115,22 +111,20 @@ export function DailyTaskRoundBox({
           onOpenChange(!open)
         }}
         disabled={!canExpand}
-        className={`flex w-full items-center gap-3 px-4 py-4 text-left transition-colors ${
-          canExpand ? 'hover:bg-white/40' : 'cursor-not-allowed'
+        className={`daily-round-toggle flex w-full items-center gap-3 px-4 py-4 text-left transition-colors ${
+          canExpand ? '' : 'cursor-not-allowed'
         }`}
         aria-expanded={open && canExpand}
       >
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-gray-400 transition-transform ${
+          className={`daily-round-chevron h-5 w-5 shrink-0 transition-transform ${
             open && canExpand ? 'rotate-180' : ''
           }`}
         />
         <div className="min-w-0 flex-1">
-          <p className={`font-semibold normal-case ${colors.header}`}>
-            {DAILY_ROUND_LABELS[round]}
-          </p>
+          <p className={colors.header}>{DAILY_ROUND_LABELS[round]}</p>
           {!unlocked && !isAdmin && (
-            <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
+            <p className="daily-round-hint mt-0.5 flex items-center gap-1 text-xs">
               <Lock className="h-3 w-3" />
               Afkryds alle opgaver i forrige runde først
             </p>
@@ -138,22 +132,22 @@ export function DailyTaskRoundBox({
         </div>
         {tasks.length > 0 && (
           <span
-            className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            className={`daily-round-badge ${
               done === tasks.length
-                ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-600'
+                ? 'daily-round-badge--complete'
+                : 'daily-round-badge--progress'
             }`}
           >
             {done}/{tasks.length}
           </span>
         )}
-        {!unlocked && !isAdmin && <Lock className="h-4 w-4 shrink-0 text-gray-400" />}
+        {!unlocked && !isAdmin && <Lock className="daily-round-chevron h-4 w-4 shrink-0" />}
       </button>
 
       {open && canExpand && (
-        <div className="space-y-4 border-t border-white/60 px-4 pb-4 pt-2">
+        <div className="daily-round-body space-y-4 px-4 pb-4 pt-2">
           {tasks.length === 0 ? (
-            <p className="text-sm text-gray-500 py-2">
+            <p className="daily-round-hint text-sm py-2">
               {isAdmin ? 'Ingen opgaver i denne runde endnu.' : 'Ingen opgaver planlagt.'}
             </p>
           ) : (

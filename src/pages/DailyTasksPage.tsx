@@ -463,12 +463,12 @@ export function DailyTasksPage() {
           </div>
         </>
       ) : (
-        <Card className="border-padel-200 bg-padel-50/50">
-          <p className="text-sm text-padel-800">
+        <Card className="daily-shift-info">
+          <p className="daily-shift-info-title text-sm">
             <span className="font-semibold">Dagens vagt:</span> {WEEKDAY_LABELS[todayWeekday]},{' '}
             {formatDate(today)}
           </p>
-          <p className="mt-1 text-xs text-padel-700/80">
+          <p className="daily-shift-info-sub mt-1 text-xs">
             Kun én runde kan åbnes ad gangen. Næste runde låses op når alle opgaver i den
             forrige er afkrydset — lukkerunden til sidst.
           </p>

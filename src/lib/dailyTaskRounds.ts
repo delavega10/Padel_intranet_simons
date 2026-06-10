@@ -15,14 +15,15 @@ export const DAILY_ROUND_LABELS: Record<DailyRoundNumber, string> = {
   4: 'Lukkerunde',
 }
 
+/** Semantiske klasser med eksplicit lys/mørk styling i index.css */
 export const DAILY_ROUND_COLORS: Record<
   DailyRoundNumber,
-  { border: string; bg: string; header: string }
+  { box: string; header: string }
 > = {
-  1: { border: 'border-padel-200', bg: 'bg-padel-50/60', header: 'text-padel-700' },
-  2: { border: 'border-padel-300', bg: 'bg-padel-50/80', header: 'text-padel-800' },
-  3: { border: 'border-padel-400', bg: 'bg-padel-100/50', header: 'text-padel-900' },
-  4: { border: 'border-indigo-200', bg: 'bg-indigo-50/80', header: 'text-indigo-800' },
+  1: { box: 'daily-round daily-round-1', header: 'daily-round-header daily-round-header-1' },
+  2: { box: 'daily-round daily-round-2', header: 'daily-round-header daily-round-header-2' },
+  3: { box: 'daily-round daily-round-3', header: 'daily-round-header daily-round-header-3' },
+  4: { box: 'daily-round daily-round-4', header: 'daily-round-header daily-round-header-4' },
 }
 
 /** Opgave tilhører en vagtrunde (1–3) eller lukkerunden (4). */
