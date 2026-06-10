@@ -10,4 +10,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    // fsevents-overvågning er upålidelig på denne maskine; polling sikrer at HMR fanger ændringer
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
+  },
 })

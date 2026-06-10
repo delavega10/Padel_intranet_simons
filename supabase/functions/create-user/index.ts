@@ -85,6 +85,14 @@ Deno.serve(async (req) => {
       return json({ error: profileError.message }, 400)
     }
 
+    await supabaseAdmin.from('admin_audit_log').insert({
+      actor_id: user.id,
+      actor_email: user.email ?? '',
+      action: 'create_user',
+      target_email: email,
+      details: { role, approved, full_name: fullName },
+    })
+
     return json({
       id: created.user.id,
       email: created.user.email,

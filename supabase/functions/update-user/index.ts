@@ -84,6 +84,23 @@ Deno.serve(async (req) => {
       if (profileError) return json({ error: profileError.message }, 400)
     }
 
+    const { data: targetProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('id', userId)
+      .single()
+
+    await supabaseAdmin.from('admin_audit_log').insert({
+      actor_id: adminCheck.user.id,
+      actor_email: adminCheck.user.email ?? '',
+      action: 'update_user',
+      target_email: targetProfile?.email ?? email ?? null,
+      details: {
+        ...profileUpdates,
+        password_changed: Boolean(password && password.length >= 6),
+      },
+    })
+
     return json({ id: userId })
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : 'Ukendt fejl' }, 500)

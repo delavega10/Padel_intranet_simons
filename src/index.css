@@ -14,6 +14,8 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html {
     @apply antialiased;
@@ -23,9 +25,65 @@
     @apply bg-gray-100 text-gray-900 min-h-screen;
   }
 
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
+  }
+
   body h1 {
     text-transform: uppercase;
   }
+}
+
+/*
+ * Mørk tilstand: central omstilling af appens mest brugte utility-klasser.
+ * Holder dark mode ét sted i stedet for dark:-varianter spredt over alle filer.
+ */
+.dark {
+  & .bg-gray-100 { background-color: var(--color-gray-950); }
+  & .bg-white { background-color: var(--color-gray-900); }
+  & .bg-gray-50 { background-color: var(--color-gray-800); }
+  & .bg-padel-50 { background-color: color-mix(in srgb, var(--color-padel-900) 40%, transparent); }
+  & .bg-padel-100 { background-color: color-mix(in srgb, var(--color-padel-900) 60%, transparent); }
+  & .bg-red-50 { background-color: color-mix(in srgb, var(--color-red-900) 35%, transparent); }
+  & .bg-amber-50 { background-color: color-mix(in srgb, var(--color-amber-900) 30%, transparent); }
+
+  & .text-gray-900 { color: var(--color-gray-100); }
+  & .text-gray-800 { color: var(--color-gray-200); }
+  & .text-gray-700 { color: var(--color-gray-300); }
+  & .text-gray-600 { color: var(--color-gray-400); }
+  & .text-padel-700 { color: var(--color-padel-400); }
+  & .text-padel-600 { color: var(--color-padel-400); }
+  & .text-red-700, & .text-red-600 { color: var(--color-red-400); }
+  & .text-amber-900 { color: var(--color-amber-200); }
+  & .text-amber-800 { color: var(--color-amber-300); }
+
+  & .border-gray-200, & .border-gray-100, & .border-gray-300 { border-color: var(--color-gray-700); }
+  & .border-red-200 { border-color: color-mix(in srgb, var(--color-red-800) 60%, transparent); }
+  & .border-amber-200 { border-color: color-mix(in srgb, var(--color-amber-800) 60%, transparent); }
+
+  & .hover\:bg-gray-50:hover,
+  & .hover\:bg-gray-100:hover { background-color: var(--color-gray-800); }
+  & .hover\:bg-padel-50:hover { background-color: color-mix(in srgb, var(--color-padel-900) 45%, transparent); }
+  & .hover\:text-padel-700:hover { color: var(--color-padel-300); }
+  & .hover\:bg-amber-100\/80:hover { background-color: color-mix(in srgb, var(--color-amber-900) 40%, transparent); }
+  & .hover\:bg-red-50:hover { background-color: color-mix(in srgb, var(--color-red-900) 40%, transparent); }
+
+  & input, & textarea, & select {
+    color-scheme: dark;
+  }
+
+  & .shadow-sm, & .shadow-md { --tw-shadow-color: rgb(0 0 0 / 0.6); }
+
+  /* Komponentklasser (defineret med @apply nedenfor) */
+  & .content-card {
+    background-color: var(--color-gray-900);
+    border-color: var(--color-gray-800);
+  }
+  & .page-header { color: var(--color-gray-100); }
+  & .sidebar-item-inactive { color: var(--color-gray-300); }
+  & .sidebar-item-inactive:hover { color: var(--color-padel-300); }
+  & .section-toggle { color: var(--color-gray-100); }
+  & .section-toggle:hover { background-color: var(--color-gray-800); }
 }
 
 @layer components {

@@ -12,6 +12,7 @@ import {
   type LinkPreviewData,
 } from '@/lib/linkPreview'
 import { uploadNewsImage } from '@/lib/newsMedia'
+import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
 import { LinkPreviewCard } from './LinkPreviewCard'
 import type { NewsImage } from '@/types'
@@ -43,7 +44,6 @@ export function NewsFeedComposer({ onPosted }: NewsFeedComposerProps) {
   const [dragOver, setDragOver] = useState(false)
 
   const authorName = profile?.full_name || profile?.email?.split('@')[0] || 'Bruger'
-  const initial = authorName.charAt(0).toUpperCase()
 
   const canPost =
     content.trim().length > 0 || images.length > 0 || linkPreviews.length > 0
@@ -211,9 +211,7 @@ export function NewsFeedComposer({ onPosted }: NewsFeedComposerProps) {
       onDrop={handleDrop}
     >
       <div className="flex gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-padel-600 text-lg font-semibold text-white">
-          {initial}
-        </div>
+        <Avatar userId={user?.id} name={authorName} className="h-12 w-12 text-sm" />
 
         <div className="min-w-0 flex-1 space-y-3">
           {!expanded ? (

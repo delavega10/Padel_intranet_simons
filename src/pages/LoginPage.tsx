@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
+import { Logo } from '@/components/ui/Logo'
 
 export function LoginPage() {
   const { session, isApproved, signIn, loading } = useAuth()
@@ -27,10 +28,7 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl bg-padel-600 text-3xl font-bold text-white shadow-md">
-            P
-          </div>
-          <h2 className="text-3xl font-extrabold text-gray-900 uppercase">Padel Intranet</h2>
+          <Logo className="mx-auto mb-4 w-72 max-w-full" />
           <p className="mt-2 text-gray-600 normal-case">Log ind med din klubkonto</p>
         </div>
 

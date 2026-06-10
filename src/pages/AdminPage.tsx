@@ -4,20 +4,22 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { AdminNewsTab } from './admin/AdminNewsTab'
 import { AdminEventsTab } from './admin/AdminEventsTab'
 import { AdminUsersTab } from './admin/AdminUsersTab'
+import { AdminAuditLogTab } from './admin/AdminAuditLogTab'
 
-type AdminTab = 'news' | 'events' | 'users'
+type AdminTab = 'news' | 'events' | 'users' | 'log'
 
 const tabs: { id: AdminTab; label: string }[] = [
   { id: 'news', label: 'Feed-indlæg' },
   { id: 'events', label: 'Events' },
   { id: 'users', label: 'Brugere' },
+  { id: 'log', label: 'Aktivitetslog' },
 ]
 
 export function AdminPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
   const activeTab: AdminTab =
-    tabParam === 'events' || tabParam === 'users' ? tabParam : 'news'
+    tabParam === 'events' || tabParam === 'users' || tabParam === 'log' ? tabParam : 'news'
 
   return (
     <div>
@@ -47,6 +49,7 @@ export function AdminPage() {
       {activeTab === 'news' && <AdminNewsTab />}
       {activeTab === 'events' && <AdminEventsTab />}
       {activeTab === 'users' && <AdminUsersTab />}
+      {activeTab === 'log' && <AdminAuditLogTab />}
     </div>
   )
 }

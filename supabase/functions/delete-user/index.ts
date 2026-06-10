@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
 
     const { data: target } = await supabaseAdmin
       .from('profiles')
-      .select('role, approved')
+      .select('role, approved, email, full_name')
       .eq('id', userId)
       .single()
 
@@ -79,6 +79,14 @@ Deno.serve(async (req) => {
 
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
     if (deleteError) return json({ error: deleteError.message }, 400)
+
+    await supabaseAdmin.from('admin_audit_log').insert({
+      actor_id: user.id,
+      actor_email: user.email ?? '',
+      action: 'delete_user',
+      target_email: target.email,
+      details: { full_name: target.full_name, role: target.role },
+    })
 
     return json({ id: userId })
   } catch (e) {

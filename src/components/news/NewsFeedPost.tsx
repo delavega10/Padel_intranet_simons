@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { refreshImageUrls } from '@/lib/newsMedia'
 import { formatDate } from '@/lib/format'
+import { Avatar } from '@/components/ui/Avatar'
 import { LinkPreviewCard } from './LinkPreviewCard'
 import type { News } from '@/types'
 
@@ -51,7 +52,6 @@ export function NewsFeedPost({ post, onDelete }: NewsFeedPostProps) {
   }, [post.images])
 
   const displayDate = post.created_at || post.published_at
-  const initial = (post.author_name || 'B').charAt(0).toUpperCase()
   const showTitle =
     post.title &&
     post.content &&
@@ -62,9 +62,7 @@ export function NewsFeedPost({ post, onDelete }: NewsFeedPostProps) {
     <article className="content-card overflow-hidden p-0">
       <div className="p-4 pb-0">
         <div className="flex gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-padel-600 text-sm font-semibold text-white">
-            {initial}
-          </div>
+          <Avatar userId={post.author_id} name={post.author_name} className="h-12 w-12 text-sm" />
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div>

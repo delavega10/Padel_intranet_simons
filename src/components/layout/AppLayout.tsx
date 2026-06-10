@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
+import { NotificationsBell } from './NotificationsBell'
 
 export function AppLayout() {
   const [showMobileDrawer, setShowMobileDrawer] = useState(false)
@@ -17,6 +18,10 @@ export function AppLayout() {
         >
           <Menu className="h-6 w-6 text-gray-600" />
         </button>
+      </div>
+
+      <div className="fixed top-4 right-4 z-50">
+        <NotificationsBell />
       </div>
 
       <Sidebar
