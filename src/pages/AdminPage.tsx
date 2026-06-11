@@ -1,16 +1,16 @@
-import { useSearchParams } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { Shield } from 'lucide-react'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { AdminDayOverviewTab } from './admin/AdminDayOverviewTab'
 import { AdminNewsTab } from './admin/AdminNewsTab'
-import { AdminEventsTab } from './admin/AdminEventsTab'
 import { AdminUsersTab } from './admin/AdminUsersTab'
 import { AdminAuditLogTab } from './admin/AdminAuditLogTab'
 
-type AdminTab = 'news' | 'events' | 'users' | 'log'
+type AdminTab = 'overview' | 'news' | 'users' | 'log'
 
 const tabs: { id: AdminTab; label: string }[] = [
+  { id: 'overview', label: 'Dagens overblik' },
   { id: 'news', label: 'Feed-indlæg' },
-  { id: 'events', label: 'Events' },
   { id: 'users', label: 'Brugere' },
   { id: 'log', label: 'Aktivitetslog' },
 ]
@@ -18,8 +18,13 @@ const tabs: { id: AdminTab; label: string }[] = [
 export function AdminPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
+
+  if (tabParam === 'events') {
+    return <Navigate to="/kalender" replace />
+  }
+
   const activeTab: AdminTab =
-    tabParam === 'events' || tabParam === 'users' || tabParam === 'log' ? tabParam : 'news'
+    tabParam === 'news' || tabParam === 'users' || tabParam === 'log' ? tabParam : 'overview'
 
   return (
     <div>
@@ -46,8 +51,8 @@ export function AdminPage() {
         ))}
       </div>
 
+      {activeTab === 'overview' && <AdminDayOverviewTab />}
       {activeTab === 'news' && <AdminNewsTab />}
-      {activeTab === 'events' && <AdminEventsTab />}
       {activeTab === 'users' && <AdminUsersTab />}
       {activeTab === 'log' && <AdminAuditLogTab />}
     </div>
