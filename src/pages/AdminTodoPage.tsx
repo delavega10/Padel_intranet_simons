@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, ListTodo, Plus, Trash2 } from 'lucide-react'
+import { Check, ListTodo, Pencil, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -29,6 +29,7 @@ export function AdminTodoPage() {
   const [todos, setTodos] = useState<AdminTodo[]>([])
   const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<AdminTodoPriority>('mellem')
@@ -63,28 +64,48 @@ export function AdminTodoPage() {
 
   function resetForm() {
     setFormOpen(false)
+    setEditingId(null)
     setTitle('')
     setDescription('')
     setPriority('mellem')
   }
 
   function openCreate() {
+    setEditingId(null)
     setTitle('')
     setDescription('')
     setPriority('mellem')
     setFormOpen(true)
   }
 
-  async function addTodo(e: React.FormEvent) {
+  function openEdit(todo: AdminTodo) {
+    setEditingId(todo.id)
+    setTitle(todo.title)
+    setDescription(todo.description)
+    setPriority(todo.priority)
+    setFormOpen(true)
+  }
+
+  async function saveTodo(e: React.FormEvent) {
     e.preventDefault()
     if (!user || !title.trim()) return
     setSaving(true)
-    await supabase.from('admin_todos').insert({
+
+    const payload = {
       title: title.trim(),
       description: description.trim(),
       priority,
-      created_by: user.id,
-    })
+    }
+
+    if (editingId) {
+      await supabase.from('admin_todos').update(payload).eq('id', editingId)
+    } else {
+      await supabase.from('admin_todos').insert({
+        ...payload,
+        created_by: user.id,
+      })
+    }
+
     setSaving(false)
     resetForm()
     await load()
@@ -120,8 +141,12 @@ export function AdminTodoPage() {
         }
       />
 
-      <Modal open={formOpen} onClose={resetForm} title="Ny opgave">
-        <form onSubmit={addTodo} className="space-y-4">
+      <Modal
+        open={formOpen}
+        onClose={resetForm}
+        title={editingId ? 'Rediger opgave' : 'Ny opgave'}
+      >
+        <form onSubmit={saveTodo} className="space-y-4">
           <Input
             label="Overskrift"
             value={title}
@@ -149,7 +174,7 @@ export function AdminTodoPage() {
           </Select>
           <div className="flex flex-wrap gap-2 pt-1">
             <Button type="submit" loading={saving}>
-              Tilføj opgave
+              {editingId ? 'Gem ændringer' : 'Tilføj opgave'}
             </Button>
             <Button type="button" variant="secondary" onClick={resetForm}>
               Annuller
@@ -234,14 +259,24 @@ export function AdminTodoPage() {
                     </p>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => deleteTodo(todo.id)}
-                  className="rounded p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                  aria-label="Slet"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex shrink-0 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(todo)}
+                    className="rounded p-2 text-gray-400 hover:bg-gray-100 hover:text-padel-700"
+                    aria-label={`Rediger ${todo.title}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteTodo(todo.id)}
+                    className="rounded p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                    aria-label={`Slet ${todo.title}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </Card>
             </li>
           ))}
