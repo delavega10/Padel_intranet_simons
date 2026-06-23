@@ -120,6 +120,20 @@ export interface LunaCaptain {
   created_at: string
 }
 
+export interface FixedCourtCustomer {
+  id: string
+  name: string
+  team: string | null
+  phone: string | null
+  email: string | null
+  sort_order: number
+  booking_dates_comment: string
+  invoice_sent: boolean
+  matchi_booking_confirmed: boolean
+  tracking_updated_at: string
+  created_at: string
+}
+
 export interface LunaPlayerSetOffer {
   id: string
   set_name: string

@@ -23,6 +23,9 @@ const DailyTasksPage = lazy(() =>
 const LunaLigaPage = lazy(() =>
   import('@/pages/LunaLigaPage').then((m) => ({ default: m.LunaLigaPage })),
 )
+const FixedCourtsPage = lazy(() =>
+  import('@/pages/FixedCourtsPage').then((m) => ({ default: m.FixedCourtsPage })),
+)
 const AdminTodoPage = lazy(() =>
   import('@/pages/AdminTodoPage').then((m) => ({ default: m.AdminTodoPage })),
 )
@@ -66,6 +69,7 @@ export default function App() {
 
                   <Route element={<AdminRoute />}>
                     <Route path="lunaliga" element={<LunaLigaPage />} />
+                    <Route path="faste-baner" element={<FixedCourtsPage />} />
                     <Route path="bestillinger" element={<OrdersPage />} />
                     <Route path="sponsorer" element={<SponsorsPage />} />
                     <Route path="samarbejde" element={<CollaborationsPage />} />
