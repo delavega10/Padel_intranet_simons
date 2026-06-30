@@ -33,6 +33,9 @@ const OrdersPage = lazy(() => import('@/pages/OrdersPage').then((m) => ({ defaul
 const SponsorsPage = lazy(() =>
   import('@/pages/SponsorsPage').then((m) => ({ default: m.SponsorsPage })),
 )
+const SponsorGraphicsPage = lazy(() =>
+  import('@/pages/SponsorGraphicsPage').then((m) => ({ default: m.SponsorGraphicsPage })),
+)
 const CollaborationsPage = lazy(() =>
   import('@/pages/CollaborationsPage').then((m) => ({ default: m.CollaborationsPage })),
 )
@@ -72,6 +75,7 @@ export default function App() {
                     <Route path="faste-baner" element={<FixedCourtsPage />} />
                     <Route path="bestillinger" element={<OrdersPage />} />
                     <Route path="sponsorer" element={<SponsorsPage />} />
+                    <Route path="sponsor-grafik" element={<SponsorGraphicsPage />} />
                     <Route path="samarbejde" element={<CollaborationsPage />} />
                     <Route path="firma-events" element={<CompanyEventsPage />} />
                     <Route path="admin" element={<AdminPage />} />

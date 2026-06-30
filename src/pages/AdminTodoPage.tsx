@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Check, ListTodo, Pencil, Plus, Trash2, User } from 'lucide-react'
+import { Check, ChevronDown, ListTodo, Pencil, Plus, Trash2, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -47,6 +47,7 @@ export function AdminTodoPage() {
   const [assigningId, setAssigningId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'alle' | 'aktive' | 'faerdige'>('aktive')
+  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set())
 
   const adminById = useMemo(
     () => new Map(admins.map((admin) => [admin.id, admin])),
@@ -192,7 +193,21 @@ export function AdminTodoPage() {
   async function deleteTodo(id: string) {
     if (!confirm('Slet opgaven?')) return
     await supabase.from('admin_todos').delete().eq('id', id)
+    setOpenIds((current) => {
+      const next = new Set(current)
+      next.delete(id)
+      return next
+    })
     await load()
+  }
+
+  function toggleTodoOpen(id: string) {
+    setOpenIds((current) => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
   if (loading) return <LoadingSpinner />
@@ -308,6 +323,7 @@ export function AdminTodoPage() {
           {visible.map((todo) => {
             const assignee = todo.assigned_to ? adminById.get(todo.assigned_to) : null
             const isAssigning = assigningId === todo.id
+            const isOpen = openIds.has(todo.id)
 
             return (
               <li key={todo.id}>
@@ -333,35 +349,49 @@ export function AdminTodoPage() {
                     {todo.completed && <Check className="h-4 w-4" />}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p
-                        className={`font-semibold text-gray-900 ${
-                          todo.completed ? 'line-through text-gray-500' : ''
+                    <button
+                      type="button"
+                      onClick={() => toggleTodoOpen(todo.id)}
+                      className="flex w-full items-start gap-2 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      <ChevronDown
+                        className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+                          isOpen ? 'rotate-180' : ''
                         }`}
-                      >
-                        {todo.title}
-                      </p>
-                      <span
-                        className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
-                          priorityBadgeClass[todo.priority]
-                        }`}
-                      >
-                        {ADMIN_TODO_PRIORITY_LABELS[todo.priority]}
-                      </span>
-                      {assignee && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800">
-                          <User className="h-3 w-3" />
-                          {adminDisplayName(assignee)}
-                        </span>
-                      )}
-                    </div>
-                    {todo.description && (
-                      <p className="mt-2 text-sm text-gray-600 whitespace-pre-wrap">
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p
+                            className={`font-semibold text-gray-900 ${
+                              todo.completed ? 'line-through text-gray-500' : ''
+                            }`}
+                          >
+                            {todo.title}
+                          </p>
+                          <span
+                            className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                              priorityBadgeClass[todo.priority]
+                            }`}
+                          >
+                            {ADMIN_TODO_PRIORITY_LABELS[todo.priority]}
+                          </span>
+                          {assignee && (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800">
+                              <User className="h-3 w-3" />
+                              {adminDisplayName(assignee)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                    {isOpen && todo.description && (
+                      <p className="mt-2 pl-6 text-sm text-gray-600 whitespace-pre-wrap">
                         {todo.description}
                       </p>
                     )}
-                    {!todo.completed && admins.length > 0 && (
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {isOpen && !todo.completed && admins.length > 0 && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 pl-6">
                         <span className="text-xs font-medium text-gray-500">Tag opgaven:</span>
                         {admins.map((admin) => {
                           const selected = todo.assigned_to === admin.id

@@ -16,6 +16,7 @@ import {
   Users,
   Building2,
   User,
+  Image,
   type LucideIcon,
 } from 'lucide-react'
 import { siteLinks, isExternalLinkConfigured } from '@/config/siteLinks'
@@ -81,6 +82,13 @@ export const navItems: NavItem[] = [
   { to: '/faste-baner', label: 'Faste baner', icon: CalendarRange, section: 'main', adminOnly: true },
   { to: '/bestillinger', label: 'Huskeseddel', icon: ClipboardListIcon, section: 'main', adminOnly: true },
   { to: '/sponsorer', label: 'Sponsorer', icon: Handshake, section: 'main', adminOnly: true },
+  {
+    to: '/sponsor-grafik',
+    label: 'Sponsor-grafik',
+    icon: Image,
+    section: 'main',
+    adminOnly: true,
+  },
   { to: '/samarbejde', label: 'Samarbejde', icon: Users, section: 'main', adminOnly: true },
   { to: '/firma-events', label: 'Firma events', icon: Building2, section: 'main', adminOnly: true },
   { to: '/emil', label: 'Emil', icon: User, section: 'main', emilOnly: true },
